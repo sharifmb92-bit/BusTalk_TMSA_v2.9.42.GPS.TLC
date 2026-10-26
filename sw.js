@@ -8,10 +8,11 @@ const ASSETS_TO_CACHE = [
   './manifest.json',
   './app.js',
   './icon-152.png',
-  './icon-192.png'
+  './icon-192.png',
+  './icon-512.png'
 ];
 
-// Instalación: precachea los archivos base y fuerza la activación inmediata
+// Instalación: Precachea los recursos locales esenciales y fuerza la activación inmediata
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -20,7 +21,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activación: elimina versiones viejas de la caché para obligar al navegador a actualizar los recursos
+// Activación: Purga automática de cachés antiguas para forzar actualización en clientes
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -35,12 +36,13 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Intercepción de peticiones (estrategia Network-First con fallback a Caché)
+// Intercepción de peticiones (Estrategia Network First con Fallback a Caché)
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
 
+  // Gestionar únicamente peticiones del mismo origen
   if (url.origin === location.origin) {
     event.respondWith(
       fetch(event.request)
