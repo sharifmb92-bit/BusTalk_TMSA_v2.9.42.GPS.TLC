@@ -1,9 +1,9 @@
 {
+  "id": "com.medbasha.bustalk",
   "name": "BusTalk v2.9.42",
   "short_name": "BusTalk",
   "description": "Asistente inteligente de cabina y radio walkie-talkie para conductores de autobús en Menorca",
   "start_url": "./index.html",
-  "id": "./index.html",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#121212",
