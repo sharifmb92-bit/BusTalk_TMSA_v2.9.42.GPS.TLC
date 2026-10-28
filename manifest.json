@@ -13,8 +13,10 @@
   "theme_color": "#121212",
   "categories": [
     "travel",
-    "utilities"
+    "utilities",
+    "navigation"
   ],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "./icon-152.png",
