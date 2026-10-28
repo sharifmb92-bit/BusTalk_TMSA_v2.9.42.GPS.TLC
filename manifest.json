@@ -3,19 +3,24 @@
   "name": "BusTalk v2.9.42",
   "short_name": "BusTalk",
   "description": "Asistente inteligente de cabina y radio walkie-talkie para conductores de autobús en Menorca",
+  "lang": "es",
+  "dir": "ltr",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#121212",
   "theme_color": "#121212",
-  "lang": "es",
-  "scope": "./",
+  "categories": [
+    "travel",
+    "utilities"
+  ],
   "icons": [
     {
       "src": "./icon-152.png",
       "sizes": "152x152",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "./icon-192.png",
@@ -28,6 +33,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Pantalla principal BusTalk"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Radar de zona BusTalk"
     }
   ]
 }
