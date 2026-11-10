@@ -417,7 +417,11 @@ function busTalkApp() {
                     this.gpsDiagDistancia = distActual;
                     this.gpsDiagNombre = `${this.miUbicacion} (100%)`;
 
-                    if (velKmh >= 15 || (distActual > 80 && velKmh >= 5)) {
+                    // RECOLOCACIÓN DENTRO DE PARADA (medbasha):
+                    // Exigimos estar a más de 60m para salir por velocidad (>= 15 km/h), o a más de 80m a marcha lenta (>= 5 km/h).
+                    const haSalidoDeRadio = (distActual > 60 && velKmh >= 15) || (distActual > 80 && velKmh >= 5);
+
+                    if (haSalidoDeRadio) {
                         this.contadorEvaluacionesCerca = 0;
 
                         if (this.mostrarAvisoFinalRuta) {
