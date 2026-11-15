@@ -1,27 +1,27 @@
-// medbasha - BusTalk_v 2.9.42_LIMPIEZA_GHOST_BUS
-
-const CACHE_NAME = 'bustalk-v2-9-42';
+// medbasha - Service Worker BusTalk_v 2.9.42
+const CACHE_NAME = 'bustalk-v2-9-42-b';
 
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './manifest.json',
   './app.js',
+  './manifest.json',
   './icon-152.png',
   './icon-192.png',
   './icon-512.png'
 ];
 
-// Instalación: Precachea los recursos locales esenciales y fuerza la activación inmediata
+// 1. INSTALACIÓN: Guarda los archivos base en caché y fuerza la activación inmediata
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
-// Activación: Purga automática de cachés antiguas para forzar actualización en clientes
+// 2. ACTIVACIÓN: Elimina cualquier caché de versiones anteriores para evitar conflictos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -36,35 +36,32 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Intercepción de peticiones (Estrategia Network First con Fallback a Caché)
+// 3. INTERCEPTOR DE RED: Sirve archivos locales rápido y deja pasar libre el tráfico de Firebase
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
 
-  // Gestionar únicamente peticiones del mismo origen
-  if (url.origin === location.origin) {
-    event.respondWith(
-      fetch(event.request)
-        .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-          }
-          return networkResponse;
-        })
-        .catch(() => {
-          return caches.match(event.request).then((cachedResponse) => {
-            if (cachedResponse) {
-              return cachedResponse;
-            }
-            if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
-              return caches.match('./index.html');
-            }
-          });
-        })
-    );
+  // No cachear peticiones en tiempo real de Firebase ni APIs externas
+  if (url.origin !== self.location.origin) {
+    return;
   }
+
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      return fetch(event.request).then((networkResponse) => {
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+          return networkResponse;
+        }
+        const responseToCache = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
+        return networkResponse;
+      });
+    })
+  );
 });
