@@ -90,7 +90,7 @@ function busTalkApp() {
         coordenadasParadasIda: {
             "Maó": { lat: 39.886875, lng: 4.258442 },               // Dársena Estació de Maó (Esplanada)
             "Argen": { lat: 39.915899, lng: 4.179612 },             // L'Argentina
-            "Alaior P.": { lat: 39.933183, lng: 4.143411 },         // Alaior Polígon
+            "Alaior P.": { lat: 39.933661, lng: 4.144245 },         // Alaior Polígon
             "Alaior C.": { lat: 39.931133, lng: 4.137307 },         // Alaior Av. Pare Camps
             "Mer": { lat: 39.985061, lng: 4.094330 },               // Es Mercadal Rotonda
             "Ferr": { lat: 39.985628, lng: 4.013859 },              // Dársena Ferreries Av. Jaume Mascaró
@@ -104,7 +104,7 @@ function busTalkApp() {
             "Ferr": { lat: 39.985473, lng: 4.014134 },              // Dársena Ferreries Av. Jaume Mascaró
             "Mer": { lat: 39.985087, lng: 4.094615 },               // Es Mercadal
             "Alaior C.": { lat: 39.930822, lng: 4.137572 },         // Alaior Centro
-            "Alaior P.": { lat: 39.933187, lng: 4.143423 },         // Alaior Polígon
+            "Alaior P.": { lat: 39.933332, lng: 4.143653 },         // Alaior Polígon
             "Argen": { lat: 39.916372, lng: 4.178651 },             // L'Argentina
             "Maó": { lat: 39.886854, lng: 4.258401 }                // Dársena Estació de Maó
         },
@@ -409,6 +409,18 @@ function busTalkApp() {
             }
         },
 
+        // RADIO DE SALIDA PERSONALIZADO POR PARADA (medbasha)
+        obtenerRadioSalidaParada(nombreParada) {
+            const paradasUrbanizacion10m = [
+                "Cementerio", "Camping", "C. Mitjana", "Galdana",
+                "Migjorn", "S. Tomàs 1ª", "S. Tomàs 2ª", "S. Tomàs 3ª"
+            ];
+            if (paradasUrbanizacion10m.includes(nombreParada)) {
+                return 10; // Dársenas pequeñas en tramos de urbanizaciones (L51/52/53 y L71/72)
+            }
+            return 30; // Estaciones y paradas generales (L01 Ciu-Maó, etc.)
+        },
+
         procesarUbicacionRobustaGPS(lat, lng, velKmh) {
             if (this.enParada) {
                 const coordsActuales = this.obtenerCoordenadasDestino(this.miUbicacion);
@@ -417,9 +429,11 @@ function busTalkApp() {
                     this.gpsDiagDistancia = distActual;
                     this.gpsDiagNombre = `${this.miUbicacion} (100%)`;
 
-                    // RECOLOCACIÓN DENTRO DE PARADA (medbasha):
-                    // Exigimos estar a más de 60m para salir por velocidad (>= 15 km/h), o a más de 80m a marcha lenta (>= 5 km/h).
-                    const haSalidoDeRadio = (distActual > 60 && velKmh >= 15) || (distActual > 80 && velKmh >= 5);
+                    // SALIDA DE PARADA SEGÚN TAMAÑO DE DÁRSENA (medbasha):
+                    // 10m en urbanizaciones (Galdana / Sant Tomàs) y 30m en L01 / paradas generales al superar 15 km/h.
+                    const radioSalidaRapida = this.obtenerRadioSalidaParada(this.miUbicacion);
+                    const radioSalidaLenta = radioSalidaRapida + 20;
+                    const haSalidoDeRadio = (distActual > radioSalidaRapida && velKmh >= 15) || (distActual > radioSalidaLenta && velKmh >= 5);
 
                     if (haSalidoDeRadio) {
                         this.contadorEvaluacionesCerca = 0;
@@ -699,8 +713,8 @@ function busTalkApp() {
 
         obtenerTiempoTramo(origen, destino) {
             const tiempos = {
-                "Ciu-Ferr": 20, "Ferr-Mer": 10, "Mer-Alaior C.": 10, "Alaior C.-Alaior P.": 4, "Alaior P.-Argen": 5, "Argen-Maó": 13,
-                "Maó-Argen": 12, "Argen-Alaior P.": 5, "Alaior P.-Alaior C.": 4, "Alaior C.-Mer": 10, "Mer-Ferr": 10, "Ferr-Ciu": 21,
+                "Ciu-Ferr": 20, "Ferr-Mer": 10, "Mer-Alaior C.": 10, "Alaior C.-Alaior P.": 3, "Alaior P.-Argen": 5, "Argen-Maó": 12,
+                "Maó-Argen": 12, "Argen-Alaior P.": 5, "Alaior P.-Alaior C.": 3, "Alaior C.-Mer": 10, "Mer-Ferr": 10, "Ferr-Ciu": 20,
                 "Ciu-Maó": 45, "Maó-Ciu": 45,
                 "Maó-Fontanilles": 5, "Fontanilles-Castell": 5, "Castell-Fontanilles": 5, "Fontanilles-Maó": 5,
                 "Maó-H. Mateu Orfila": 6, "H. Mateu Orfila-S. Lluís": 6, "S. Lluís-H. Mateu Orfila": 6, "H. Mateu Orfila-Maó": 6,
